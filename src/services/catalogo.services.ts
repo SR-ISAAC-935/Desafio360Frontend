@@ -1,12 +1,10 @@
 import { api } from '../Tipos/api/cliente';
-import {type DetalleProducto, type Categoria, type FiltrosCatalogo, type Pagina, type ProductoCard } from '../Tipos/catalogo';
+import type { Categoria, DetalleProducto, FiltrosCatalogo, Pagina, ProductoCard } from '../Tipos/catalogo';
 
 export const catalogoService = {
   async buscar(f: FiltrosCatalogo): Promise<Pagina<ProductoCard>> {
     // Solo se envían los filtros con valor: el backend rechaza cadenas vacías en los números.
-    const params = Object.fromEntries(
-      Object.entries(f).filter(([, v]) => v !== undefined && v !== ''),
-    );
+    const params = Object.fromEntries(Object.entries(f).filter(([, v]) => v !== undefined && v !== ''));
     const { data } = await api.get<Pagina<ProductoCard>>('/catalogo/productos', { params });
     return data;
   },
@@ -16,13 +14,8 @@ export const catalogoService = {
     return data;
   },
 
-  async detalles(id:number): Promise<ProductoCard>{
-    const {data}= await api.get<ProductoCard>('/productos/detalle/',{params:{id}});
-    return data;
-  
-  },
   async detallepublico(id: number): Promise<DetalleProducto> {
-  const { data } = await api.get<DetalleProducto>(`/catalogo/productos/${id}`);
-  return data;
-},
+    const { data } = await api.get<DetalleProducto>(`/catalogo/productos/${id}`);
+    return data;
+  },
 };

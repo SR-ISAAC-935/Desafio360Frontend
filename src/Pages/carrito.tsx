@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useCarrito, useCarritoAcciones } from '../hooks/useCarrito';
 import { mensajeError } from '../utils/errores';
+import { AccionesCarrito } from '../Components/AccionesCarrito';
 
 const quetzales = new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ' });
 
@@ -47,7 +48,7 @@ export function Carrito() {
             </button>
 
             <input
-              key={l.Cantidad} // se reinicia cuando el servidor confirma el cambio
+              key={l.Cantidad}
               type="number"
               min={1}
               max={l.Disponible}
@@ -86,6 +87,8 @@ export function Carrito() {
         <p><strong>Total: {quetzales.format(totales.Total)}</strong></p>
         <p>IVA incluido: {quetzales.format(totales.IVAIncluido)}</p>
       </aside>
+
+      <AccionesCarrito carrito={data} />
 
       {cambiarCantidad.isError && <p role="alert">{mensajeError(cambiarCantidad.error)}</p>}
       {quitar.isError && <p role="alert">{mensajeError(quitar.error)}</p>}

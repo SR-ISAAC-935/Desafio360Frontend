@@ -16,7 +16,7 @@ export function Catalogo() {
   const [texto, setTexto] = useState('');
   const [categoria, setCategoria] = useState<number | undefined>(undefined);
   const [ordenar, setOrdenar] = useState<OrdenCatalogo>('NOMBRE_ASC');
-  const [soloDisponibles] = useState(false);
+  const [soloDisponibles, setSoloDisponibles] = useState(false);
   const [pagina, setPagina] = useState(1);
 
   const textoFinal = useDebounce(texto.trim());
@@ -26,7 +26,6 @@ export function Catalogo() {
     queryFn: catalogoService.categorias,
   });
 
-  // Al cambiar cualquier valor de la queryKey, react-query vuelve a pedir los datos.
   const productosQ = useQuery({
     queryKey: ['catalogo', { textoFinal, categoria, ordenar, soloDisponibles, pagina }],
     queryFn: () =>
@@ -38,7 +37,7 @@ export function Catalogo() {
         ordenar,
         soloDisponibles: soloDisponibles || undefined,
       }),
-    placeholderData: keepPreviousData, // mantiene la lista anterior mientras llega la nueva
+    placeholderData: keepPreviousData,
   });
 
   const resultado = productosQ.data;
@@ -47,7 +46,7 @@ export function Catalogo() {
     <section>
       <h1>Catálogo</h1>
 
-      <div>
+      <div className="filtros">
         <input
           type="search"
           placeholder="Buscar productos…"
@@ -74,7 +73,14 @@ export function Catalogo() {
           ))}
         </select>
 
-      
+        <label>
+          <input
+            type="checkbox"
+            checked={soloDisponibles}
+            onChange={(e) => { setSoloDisponibles(e.target.checked); setPagina(1); }}
+          />
+          Solo disponibles
+        </label>
       </div>
 
       {productosQ.isLoading && <p>Cargando productos…</p>}
@@ -90,13 +96,13 @@ export function Catalogo() {
 
       {resultado && resultado.datos.length > 0 && (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
+          <div className="rejilla">
             {resultado.datos.map((p) => (
               <TarjetaProducto key={p.IDProducto} producto={p} />
             ))}
           </div>
 
-          <nav>
+          <nav className="paginacion">
             <button disabled={pagina <= 1} onClick={() => setPagina((p) => p - 1)}>Anterior</button>
             <span> Página {resultado.pagina} de {resultado.totalPaginas} ({resultado.total} productos) </span>
             <button disabled={pagina >= resultado.totalPaginas} onClick={() => setPagina((p) => p + 1)}>Siguiente</button>

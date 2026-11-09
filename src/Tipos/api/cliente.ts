@@ -1,12 +1,15 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { sesion } from './sesion';
 
-
 export const api = axios.create({ baseURL: import.meta.env.VITE_API_URL });
 
 api.interceptors.request.use((config) => {
   const token = sesion.getAccess();
   if (token) config.headers.Authorization = `Bearer ${token}`;
+
+  const carrito = sesion.getCarritoToken();
+  if (carrito) config.headers['x-carrito-token'] = carrito;
+
   return config;
 });
 
@@ -24,15 +27,12 @@ async function renovar(): Promise<string> {
   sesion.setRefresh(data.refreshToken);
   return data.accessToken;
 }
-api.interceptors.request.use((config) => {
-  const token = sesion.getAccess();
-  if (token) config.headers.Authorization = `Bearer ${token}`;
 
-  const carrito = sesion.getCarritoToken();
-  if (carrito) config.headers['x-carrito-token'] = carrito;
+export function renovarSesion(): Promise<string> {
+  renovando ??= renovar().finally(() => { renovando = null; });
+  return renovando;
+}
 
-  return config;
-});
 api.interceptors.response.use(
   (r) => r,
   async (err: AxiosError) => {
@@ -41,18 +41,14 @@ api.interceptors.response.use(
     if (err.response?.status !== 401 || !original || original._reintentada || sinRenovar) throw err;
 
     original._reintentada = true;
- try {
-  const nuevo = await renovarSesion();
-  original.headers.Authorization = `Bearer ${nuevo}`;
-  return api(original);
-} catch {
+    try {
+      const nuevo = await renovarSesion();
+      original.headers.Authorization = `Bearer ${nuevo}`;
+      return api(original);
+    } catch {
       sesion.limpiar();
       window.dispatchEvent(new Event('sesion-expirada'));
       throw err;
     }
   },
 );
-export function renovarSesion(): Promise<string> {
-  renovando ??= renovar().finally(() => { renovando = null; });
-  return renovando;
-}

@@ -37,7 +37,9 @@ export interface FiltrosCatalogo {
   precioMax?: number;
   soloDisponibles?: boolean;
   ordenar: OrdenCatalogo;
-}export interface ProductoDetalle {
+}
+
+export interface ProductoDetalle {
   IDProducto: number;
   NombreProducto: string;
   Descripcion: string | null;
