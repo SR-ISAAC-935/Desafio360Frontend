@@ -34,7 +34,8 @@ export function DetallePublico() {
     <article>
       <h1>{producto.NombreProducto}</h1>
       <p>{producto.NombreCategoria}</p>
-      {producto.Descripcion && <p>{producto.Descripcion}</p>}
+      {producto.Descripcion && <p><strong>Descripción:</strong><br />
+        {producto.Descripcion}</p>}
 
       {variante?.ImagenUrl && <img src={variante.ImagenUrl} alt={producto.NombreProducto} />}
 
